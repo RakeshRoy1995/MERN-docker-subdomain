@@ -1,6 +1,7 @@
 const logger = require('../config/logger');
-const Product = require('../models/Product.model').Product ;
-const { formatError } = require('../utils/error.util') ;
+const {dataFormate , ProductTableFormateObj } = require('../common/data-formate');
+const Product = require('../models/Product.model').Product;
+const { formatError } = require('../utils/error.util');
 
 const NAMESPACE = 'Product Controller';
 
@@ -22,7 +23,6 @@ const createProduct = async (req, res) => {
 // Update Product
 const updateProduct = async (req, res) => {
     
-
     try {
         const { id , name, description , price , status } = req.body;
         const categorieFound = await Product.findById(id);
@@ -65,7 +65,9 @@ const singleProduct = async (req, res) => {
             return res.status(404).json(formatError('No Product found'));
         }
 
-        res.json(productFound);
+        let productData = dataFormate(ProductTableFormateObj , productFound , false)
+
+        res.json(productData);
     } catch (err) {
         logger.error(NAMESPACE, 'View single categorie error', err);
         res.status(500).json(formatError('Server error'));
@@ -94,6 +96,7 @@ const deleteProduct = async (req, res) => {
 // Get All Products
 const getAllProduct = async (req, res) => {
     try {
+
         const published = req.query.published;
 
         if (published === 'true') {
@@ -103,15 +106,15 @@ const getAllProduct = async (req, res) => {
         } else {
 
             const data = await Product.findAll();
-            return res.json(data);
+            let productData = dataFormate(ProductTableFormateObj , data )
+
+            return res.json(productData);
         }
     } catch (err) {
         logger.error(NAMESPACE, 'View all data error', err);
         res.status(500).json(formatError('Server error'));
     }
 };
-
-
 
 module.exports = {
     createProduct, 
